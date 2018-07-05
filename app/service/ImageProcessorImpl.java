@@ -13,25 +13,17 @@ import model.Size;
 
 public class ImageProcessorImpl implements ImageProcessor{
 	
-	public List<File> convertToSizes ( List<Size> sizes , String imagePath ) throws IOException{
+	public List<File> convertToSizes ( List<Size> sizes , String imagePath ,String outputImagePath) throws IOException{
 		List<File> files = new ArrayList<>();
 		for(Size size: sizes){
-			File file =resize(imagePath,"E:\\PocketPills\\Images\\output",size.getWidth(),size.getHeight());
+			File file =resize(imagePath, outputImagePath ,size.getWidth(),size.getHeight());
 			files.add(file);
 		}
 		
 		return files;
 	}
 	
-	/**
-     * Resizes an image to a absolute width and height (the image may not be
-     * proportional)
-     * @param inputImagePath Path of the original image
-     * @param outputImagePath Path to save the resized image
-     * @param scaledWidth absolute width in pixels
-     * @param scaledHeight absolute height in pixels
-     * @throws IOException
-     */
+	@Override
     public File resize(String inputImagePath,
             String outputImagePath, int scaledWidth, int scaledHeight)
             throws IOException {
@@ -51,24 +43,17 @@ public class ImageProcessorImpl implements ImageProcessor{
         
       //  return outputImage;
         // extracts extension of output file
-        String formatName = outputImagePath.substring(outputImagePath
-                .lastIndexOf(".") + 1);
+      /*  String formatName = outputImagePath.substring(outputImagePath
+                .lastIndexOf(".") + 1);*/
  
         File file = new File(outputImagePath);
         // writes to output file
-        ImageIO.write(outputImage, "jpg", new File(outputImagePath));
+        ImageIO.write(outputImage, "jpg", file);
         
         return file;
     }
  
-    /**
-     * Resizes an image by a percentage of original size (proportional).
-     * @param inputImagePath Path of the original image
-     * @param outputImagePath Path to save the resized image
-     * @param percent a double number specifies percentage of the output image
-     * over the input image.
-     * @throws IOException
-     */
+	@Override
     public File resize(String inputImagePath,
             String outputImagePath, double percent) throws IOException {
         File inputFile = new File(inputImagePath);

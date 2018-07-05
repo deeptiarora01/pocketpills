@@ -2,6 +2,12 @@ package model;
 
 import java.io.Serializable;
 
+/**
+ * Model class for filedto.
+ * 
+ * @author deeptiarora
+ *
+ */
 public class FileDto implements Serializable {
 
 	private static final long serialVersionUID = 1L;

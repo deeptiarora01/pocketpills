@@ -19,10 +19,11 @@ import com.amazonaws.services.s3.model.S3ObjectSummary;
 
 import model.FileDto;
 
-public class UploadToS3Impl {
+public class UploadToS3Impl implements UploadToS3{
 	
 	private static final String SUFFIX = "/";
 	
+	@Override
 	public void upload(FileDto fileDto){
 		// credentials object identifying user for authentication
 				// user must have AWSConnector and AmazonS3FullAccess for 
@@ -44,11 +45,14 @@ public class UploadToS3Impl {
 				// upload file to folder and set it to public
 				String fileName = folderName +SUFFIX+fileDto.getName();
 				
+				// Declare meta data of the file.
 				ObjectMetadata metaData = new ObjectMetadata();
 				MimetypesFileTypeMap mimeTypesMap = new MimetypesFileTypeMap();
 				String mimeType = mimeTypesMap.getContentType(fileDto.getContentType());
 				metaData.setContentLength(fileDto.getContent().length);
 				metaData.setContentType(mimeType);
+				
+				// Put the file in the S3 bucket.
 				PutObjectResult putObjectResult=null;
 				try (InputStream input = new ByteArrayInputStream(fileDto.getContent())) {
 					PutObjectRequest putObjectRequest = new PutObjectRequest(
@@ -64,6 +68,7 @@ public class UploadToS3Impl {
 				}
 	}
 	
+	@Override
 	public void createFolder(String bucketName, String folderName, AmazonS3 client) {
 		// create meta-data for your folder and set content-length to 0
 		ObjectMetadata metadata = new ObjectMetadata();
@@ -76,10 +81,8 @@ public class UploadToS3Impl {
 		// send request to S3 to create folder
 		client.putObject(putObjectRequest);
 	}
-	/**
-	 * This method first deletes all the files in given folder and than the
-	 * folder itself
-	 */
+	
+	@Override
 	public void deleteFolder(String bucketName, String folderName, AmazonS3 client) {
 		List<S3ObjectSummary> fileList = client.listObjects(bucketName, folderName).getObjectSummaries();
 		for (S3ObjectSummary file : fileList) {

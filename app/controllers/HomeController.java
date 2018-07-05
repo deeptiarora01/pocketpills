@@ -24,19 +24,19 @@ import service.UploadToS3Impl;
 
 import views.html.*;
 /**
- * This class uses a custom body parser to change the upload type.
+ * This class is the home controller used for index and upload page.
  */
 @Singleton
 public class HomeController extends Controller {
 
     private final play.data.FormFactory formFactory;
     
-    private final UploadToS3Impl uploadToS3;
+    private final UploadToS3 uploadToS3;
     
-    private final ImageProcessorImpl imageProcessor;
+    private final ImageProcessor imageProcessor;
     
     @Inject
-    public HomeController(play.data.FormFactory formFactory,UploadToS3Impl uploadToS3,ImageProcessorImpl imageProcessor) {
+    public HomeController(play.data.FormFactory formFactory,UploadToS3 uploadToS3,ImageProcessor imageProcessor) {
         this.formFactory = formFactory;
         this.uploadToS3 = uploadToS3;
         this.imageProcessor = imageProcessor;
@@ -47,47 +47,48 @@ public class HomeController extends Controller {
         return ok(index.render(form));
     }
 
-    /**
-     * This method uses MyMultipartFormDataBodyParser as the body parser
-     */
     public Result upload() throws IOException {
         final Http.MultipartFormData<File> formData = request().body().asMultipartFormData();
         final List<Http.MultipartFormData.FilePart<File>> fileParts = formData.getFiles();
-        for(Http.MultipartFormData.FilePart<File> filePart:fileParts){
-	        	FileDto fileDto = new FileDto();
-	        	File file = filePart.getFile();
-	        	String path = file.getPath();
-				fileDto.setContent(Files.readAllBytes(Paths.get(file.getAbsolutePath())));
-				fileDto.setName(filePart.getFilename());
-				fileDto.setContentType(filePart.getContentType());
-				fileDto.setPath(path);
-				uploadToS3.upload(fileDto);
-
-				//ImageProcessorImpl imageResizer = new ImageProcessorImpl();
-				
-				List<File> files = new ArrayList<>();
-				// resize smaller by 50%
-	            double percent = 0.5;
-	            files.add(imageProcessor.resize(path, path+"small", percent));
-	 
-	            // resize bigger by 50%
-	            percent = 1.5;
-	            files.add(imageProcessor.resize(path, path+"bigger", percent));
-				
-				for(File file1:files){
-					FileDto fileDto1 = new FileDto();
-					fileDto1.setContent(Files.readAllBytes(Paths.get(file1.getAbsolutePath())));
-					fileDto1.setName(file1.getName()+".jpg");
-					fileDto1.setContentType(filePart.getContentType());
-					fileDto1.setPath(file1.getPath());
-					uploadToS3.upload(fileDto1);
-				}
-	        }
         
-     //   final long data = operateOnTempFile(file);
+        // For each file selected from frontend.
+        for(Http.MultipartFormData.FilePart<File> filePart:fileParts){
+	        	
+        	   // upload original file to S3.
+	        	File file = filePart.getFile();
+	        	FileDto fileDto = fileToFileDtoTransformer(file,filePart.getFilename(),filePart.getContentType(),"original");
+	        	String path = file.getPath();
+				uploadToS3.upload(fileDto);
+				
+				// resize smaller by 50% and then upload to S3
+	          double percent = 0.5;
+				File fileSmall = imageProcessor.resize(path, path+"small", percent);
+				FileDto fileDtoSmall = fileToFileDtoTransformer(fileSmall,filePart.getFilename(),filePart.getContentType(),"small");
+				uploadToS3.upload(fileDtoSmall);
+				
+				// resize bigger by 50% and the upload to S3
+	          percent = 1.5;
+	          File fileBig= imageProcessor.resize(path, path+"bigger", percent);
+				FileDto fileDtoBig = fileToFileDtoTransformer(fileBig,filePart.getFilename(),filePart.getContentType(),"big");
+				uploadToS3.upload(fileDtoBig);
+     
+        }
         return ok("Files Uploaded to S3");
     }
 
+    private FileDto fileToFileDtoTransformer(File file,String name,String contentType,String fileType) throws IOException{
+    	FileDto fileDto = new FileDto();
+    	fileDto.setContent(Files.readAllBytes(Paths.get(file.getAbsolutePath())));
+		fileDto.setName(fileType+name);
+		fileDto.setContentType(contentType);
+		return fileDto;
+    }
+    
+    private boolean validateFile(){
+    	
+    	return false;
+    }
+    
     /*private long operateOnTempFile(File file) throws IOException {
         final long size = Files.size(file.toPath());
         Files.deleteIfExists(file.toPath());
@@ -95,4 +96,3 @@ public class HomeController extends Controller {
     }*/
 
 }
-
