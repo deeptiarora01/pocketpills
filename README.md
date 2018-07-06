@@ -1,4 +1,4 @@
-# Image Upload with Play Framework
+# Image Upload to S3 with Play Framework
 
 This is a sample project that upload image to  S3 bucket. 
 Once the application is up and running you may choose multiple files to be uploaded on S3 bucket. 
