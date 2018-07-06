@@ -1,6 +1,7 @@
 package controllers;
 
 import akka.stream.IOResult;
+import java.nio.file.Paths;
 import akka.stream.Materializer;
 import akka.stream.javadsl.FileIO;
 import akka.stream.javadsl.Source;
@@ -19,6 +20,7 @@ import static java.nio.file.Files.createTempFile;
 import static java.nio.file.Files.write;
 import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 import static play.test.Helpers.*;
 
@@ -28,16 +30,18 @@ public class HomeControllerTest {
     public void testFileUpload() {
         Application app = fakeApplication();
         running(app, () -> {
-            try {
+           // try {
 
                 Files.TemporaryFileCreator temporaryFileCreator = app.injector().instanceOf(Files.TemporaryFileCreator.class);
                 Materializer materializer = app.injector().instanceOf(Materializer.class);
 
-                Path tempfilePath = createTempFile(null, "tempfile");
-                write(tempfilePath, "My string to save".getBytes("utf-8"));
+                /*Path tempfilePath = createTempFile(null, "tempfile");
+                write(tempfilePath, "My string to save".getBytes("utf-8"));*/
+                Path tempfilePath = Paths.get("C:\\Users\\deeptiarora\\Downloads\\ArtTutorGridPic.jpg");
+                //write(tempfilePath, "My string to save".getBytes("utf-8"));
 
                 Source<ByteString, CompletionStage<IOResult>> source = FileIO.fromPath(tempfilePath);
-                Http.MultipartFormData.FilePart<Source<ByteString, ?>> part = new Http.MultipartFormData.FilePart<>("name", "filename", "text/plain", source);
+                Http.MultipartFormData.FilePart<Source<ByteString, ?>> part = new Http.MultipartFormData.FilePart<>("name", "filename", "image/jpeg", source);
                 Http.RequestBuilder request = fakeRequest()
                         .method(POST)
                         .bodyMultipart(singletonList(part), temporaryFileCreator, materializer)
@@ -45,11 +49,25 @@ public class HomeControllerTest {
 
                 Result result = route(app, request);
                 String actual = contentAsString(result);
-                assertEquals("file size = 17", actual);
-            } catch (IOException e) {
+                assertEquals("Files Uploaded to S3", actual);
+            /*} catch (IOException e) {
                 fail(e.getMessage());
-            }
+            }*/
         });
+    }
+    
+    @Test
+    public void testIndex(){
+    	 Application app = fakeApplication();
+         running(app, () -> {
+        	 Http.RequestBuilder request = fakeRequest()
+                     .method(GET)
+                     .uri("/index");
+
+             Result result = route(app, request);
+             String actual = contentAsString(result);
+             assertNotNull(actual);
+         });
     }
 
 }

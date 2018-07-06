@@ -3,6 +3,7 @@ package browsers;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import org.fluentlenium.core.domain.FluentWebElement;
 import org.junit.Test;
@@ -15,15 +16,17 @@ public class BrowserTest extends WithBrowser {
 
     @Test
     public void uploadFile() throws IOException {
-        Path tmpPath = Files.createTempFile(null, null);
+        /*Path tmpPath = Files.createTempFile(null, null);
         Files.write(tmpPath, "hello".getBytes());
+        */
+        Path tempfilePath = Paths.get("C:\\Users\\deeptiarora\\Downloads\\ArtTutorGridPic.jpg");
 
         // http://fluentlenium.org/docs/#filling-forms
         // https://saucelabs.com/resources/articles/best-practices-tips-selenium-file-upload
         browser.goTo("/");
         FluentWebElement nameElement = browser.find(By.name("name")).first();
         nameElement.click();
-        nameElement.fill().with(tmpPath.toAbsolutePath().toString());
+        nameElement.fill().with(tempfilePath.toString());
         nameElement.submit();
 
         assertTrue(browser.pageSource().equals("file size = 5"));
