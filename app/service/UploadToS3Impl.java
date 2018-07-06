@@ -26,18 +26,27 @@ public class UploadToS3Impl implements UploadToS3{
 	@Override
 	public void upload(FileDto fileDto){
 		// credentials object identifying user for authentication
-				AWSCredentials credentials = new BasicAWSCredentials(
-						"AKIAIOYV6CGT7H3L46KA", 
-						"d4rYemFy66ZMyKQ3R9OkkCOHyjnNFqzvw8yFPZIn");
-				
-				// create a client connection based on credentials
-				AmazonS3Client s3client = new AmazonS3Client(credentials);
-				
-				// create bucket - name must be unique for all S3 users
-				String bucketName = "pocketpillsassignment";
-				
-				// create folder into bucket
-				String folderName = "testfolder";
+		AWSCredentials credentials = new BasicAWSCredentials(
+				"AKIAIOYV6CGT7H3L46KA", 
+				"d4rYemFy66ZMyKQ3R9OkkCOHyjnNFqzvw8yFPZIn");
+		
+		// create a client connection based on credentials
+		AmazonS3Client s3client = new AmazonS3Client(credentials);
+		
+		// create bucket - name must be unique for all S3 users
+		String bucketName = "pocketpillsassignment";
+		
+		// create folder into bucket
+		String folderName = "testfolder";
+		
+		upload(fileDto,bucketName,folderName,s3client);
+		
+	}
+	
+	
+	
+	public void upload(FileDto fileDto , String bucketName, String folderName, AmazonS3Client s3client){
+		
 				createFolder(bucketName, folderName, s3client);
 				
 				// upload file to folder and set it to public
