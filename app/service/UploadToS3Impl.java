@@ -26,8 +26,6 @@ public class UploadToS3Impl implements UploadToS3{
 	@Override
 	public void upload(FileDto fileDto){
 		// credentials object identifying user for authentication
-				// user must have AWSConnector and AmazonS3FullAccess for 
-				// this example to work
 				AWSCredentials credentials = new BasicAWSCredentials(
 						"AKIAIOYV6CGT7H3L46KA", 
 						"d4rYemFy66ZMyKQ3R9OkkCOHyjnNFqzvw8yFPZIn");
@@ -88,7 +86,7 @@ public class UploadToS3Impl implements UploadToS3{
 		for (S3ObjectSummary file : fileList) {
 			client.deleteObject(bucketName, file.getKey());
 		}
-		client.deleteObject(bucketName, folderName);
+		//client.deleteObject(bucketName, folderName);
 	}
 
 }

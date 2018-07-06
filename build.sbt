@@ -14,4 +14,7 @@ libraryDependencies += "com.h2database" % "h2" % "1.4.197"
 
 libraryDependencies += "com.amazonaws" % "aws-java-sdk" % "1.11.358"
 
+libraryDependencies += "io.findify" %% "s3mock" % "0.2.4" % "test"
+
 testOptions += Tests.Argument(TestFrameworks.JUnit, "-a", "-v")
+
