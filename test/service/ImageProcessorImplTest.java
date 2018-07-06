@@ -5,11 +5,16 @@ import static org.junit.Assert.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.Assert.assertEquals;
 import javax.imageio.ImageIO;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import model.Size;
 
 
 public class ImageProcessorImplTest {
@@ -17,6 +22,7 @@ public class ImageProcessorImplTest {
 	ImageProcessorImpl imageProcessor;
 	File inputFile;
 	File outputFile;
+	
 	@Before
 	public void setup(){
 		imageProcessor = new ImageProcessorImpl();
@@ -25,14 +31,25 @@ public class ImageProcessorImplTest {
 	}
 	
 	@Test
-	public void testConvertToSizes() {
-		
+	public void testConvertToSizes() throws IOException {
+		final int scaledWidth = 150;
+		final int scaledHeight = 150;
+		Size size = new Size();
+		size.setHeight(scaledHeight);
+		size.setWidth(scaledWidth);
+		List<Size> sizes =new ArrayList<>();
+		sizes.add(size);
+		List<File> files =imageProcessor.convertToSizes(sizes, outputFile.getAbsolutePath(), outputFile.getAbsolutePath());
+		File file =files.get(0);
+		BufferedImage outputImage = ImageIO.read(file);
+		assertEquals(scaledHeight,outputImage.getHeight());
+		assertEquals(scaledWidth,outputImage.getWidth());
 	}
 
 	@Test
 	public void testResizeStringStringWithScaledValues() throws IOException {
-		int scaledWidth = 100;
-		int scaledHeight = 100; 
+		final int scaledWidth = 100;
+		final int scaledHeight = 100; 
       String inputImagePath = inputFile.getAbsolutePath();
       String outputImagePath = outputFile.getAbsolutePath();
 		File file = imageProcessor.resize(inputImagePath, outputImagePath, scaledWidth, scaledHeight);
