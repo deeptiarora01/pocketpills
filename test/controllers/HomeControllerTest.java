@@ -2,6 +2,7 @@ package controllers;
 
 import akka.stream.IOResult;
 import java.nio.file.Paths;
+import java.io.File;
 import akka.stream.Materializer;
 import akka.stream.javadsl.FileIO;
 import akka.stream.javadsl.Source;
@@ -30,15 +31,12 @@ public class HomeControllerTest {
     public void testFileUpload() {
         Application app = fakeApplication();
         running(app, () -> {
-           // try {
-
                 Files.TemporaryFileCreator temporaryFileCreator = app.injector().instanceOf(Files.TemporaryFileCreator.class);
                 Materializer materializer = app.injector().instanceOf(Materializer.class);
 
-                /*Path tempfilePath = createTempFile(null, "tempfile");
-                write(tempfilePath, "My string to save".getBytes("utf-8"));*/
-                Path tempfilePath = Paths.get("C:\\Users\\deeptiarora\\Downloads\\ArtTutorGridPic.jpg");
-                //write(tempfilePath, "My string to save".getBytes("utf-8"));
+                File file = new File("test\\resources\\ArtTutorGridPic.jpg");
+                String absolutePath = file.getAbsolutePath();
+                Path tempfilePath = Paths.get(absolutePath);
 
                 Source<ByteString, CompletionStage<IOResult>> source = FileIO.fromPath(tempfilePath);
                 Http.MultipartFormData.FilePart<Source<ByteString, ?>> part = new Http.MultipartFormData.FilePart<>("name", "filename", "image/jpeg", source);
@@ -50,9 +48,6 @@ public class HomeControllerTest {
                 Result result = route(app, request);
                 String actual = contentAsString(result);
                 assertEquals("Files Uploaded to S3", actual);
-            /*} catch (IOException e) {
-                fail(e.getMessage());
-            }*/
         });
     }
     
@@ -63,7 +58,6 @@ public class HomeControllerTest {
         	 Http.RequestBuilder request = fakeRequest()
                      .method(GET)
                      .uri("/index");
-
              Result result = route(app, request);
              String actual = contentAsString(result);
              assertNotNull(actual);
