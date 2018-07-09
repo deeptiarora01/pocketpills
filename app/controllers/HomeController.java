@@ -1,15 +1,18 @@
 package controllers;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
+import javax.imageio.ImageIO;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import model.FileDto;
+import play.api.mvc.MultipartFormData.FilePart;
 import play.data.Form;
 import play.mvc.Controller;
 import play.mvc.Http;
@@ -17,6 +20,7 @@ import play.mvc.Result;
 import service.ImageProcessor;
 import service.UploadToS3;
 import views.html.*;
+
 /**
  * This class is the home controller used for index and upload page.
  */
@@ -44,6 +48,7 @@ public class HomeController extends Controller {
     public Result upload() throws IOException {
         final Http.MultipartFormData<File> formData = request().body().asMultipartFormData();
         final List<Http.MultipartFormData.FilePart<File>> fileParts = formData.getFiles();
+        StringBuilder response = new StringBuilder();
         // Execute the code only if there is atleast one file selected by user
         if (!"".equals(fileParts.get(0).getFilename())) {
 	        // For each file selected from frontend.
@@ -72,7 +77,7 @@ public class HomeController extends Controller {
         }else{
         	// here comes the validation
          //flash("error", "Missing file");
-            return ok("There are no file to be uploaded");    
+            return ok("There are no file to be uploaded");
         }
     }
 
@@ -84,15 +89,4 @@ public class HomeController extends Controller {
 		return fileDto;
     }
     
-    private boolean validateFile(){
-    	
-    	return false;
-    }
-    
-    /*private long operateOnTempFile(File file) throws IOException {
-        final long size = Files.size(file.toPath());
-        Files.deleteIfExists(file.toPath());
-        return size;
-    }*/
-
 }
