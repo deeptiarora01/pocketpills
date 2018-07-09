@@ -1,7 +1,7 @@
 @(form: Form[controllers.FormData])
 
 @main("Welcome to Play") {
-		<h2>File Upload</h2>
+	<h2>File Upload</h2>
  @helper.form(action = routes.HomeController.upload, 'enctype -> "multipart/form-data") {
   @helper.inputFile(form("name"),'multiple -> "multiple" )
   @helper.CSRF.formField
