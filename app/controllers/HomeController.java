@@ -19,6 +19,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import service.ImageProcessor;
 import service.UploadToS3;
+import validation.ImageValidator;
 import views.html.*;
 
 /**
@@ -33,11 +34,14 @@ public class HomeController extends Controller {
     
     private final ImageProcessor imageProcessor;
     
+    private final ImageValidator imageValidator;
+    
     @Inject
-    public HomeController(play.data.FormFactory formFactory,UploadToS3 uploadToS3,ImageProcessor imageProcessor) {
+    public HomeController(play.data.FormFactory formFactory,UploadToS3 uploadToS3,ImageProcessor imageProcessor,ImageValidator imageValidator) {
         this.formFactory = formFactory;
         this.uploadToS3 = uploadToS3;
         this.imageProcessor = imageProcessor;
+        this.imageValidator = imageValidator;
     }
 
     public Result index() {
@@ -54,26 +58,31 @@ public class HomeController extends Controller {
 	        // For each file selected from frontend.
 	        for(Http.MultipartFormData.FilePart<File> filePart:fileParts){
 		        	
+	        	if(!imageValidator.isValid(filePart)){
+	        		response.append("Not a valid image : " +filePart.getFilename()+"\n");
+	        		continue;
+	        	}
 	        	   // upload original file to S3.
 		        	File file = filePart.getFile();
 		        	FileDto fileDto = fileToFileDtoTransformer(file,filePart.getFilename(),filePart.getContentType(),"original");
 		        	String path = file.getPath();
-					uploadToS3.upload(fileDto);
+		        	response.append(	"URL for original image " + uploadToS3.upload(fileDto)+"\n");
 					
 					// resize smaller by 50% and then upload to S3
 		          double percent = 0.5;
 					File fileSmall = imageProcessor.resize(path, path+"small", percent);
 					FileDto fileDtoSmall = fileToFileDtoTransformer(fileSmall,filePart.getFilename(),filePart.getContentType(),"small");
-					uploadToS3.upload(fileDtoSmall);
+					response.append("URL for small image "+uploadToS3.upload(fileDtoSmall)+"\n");
 					
 					// resize bigger by 50% and the upload to S3
 		          percent = 1.5;
 		          File fileBig= imageProcessor.resize(path, path+"bigger", percent);
 					FileDto fileDtoBig = fileToFileDtoTransformer(fileBig,filePart.getFilename(),filePart.getContentType(),"big");
-					uploadToS3.upload(fileDtoBig);
+					response.append("URL for big image "+uploadToS3.upload(fileDtoBig)+"\n");
 	     
 	        }
-	        return ok("Files Uploaded to S3");
+	        response.append("Thanks for using our application to upload files to S3");
+	        return ok(response.toString());
         }else{
         	// here comes the validation
          //flash("error", "Missing file");

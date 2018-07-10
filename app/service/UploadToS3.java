@@ -18,8 +18,9 @@ public interface UploadToS3 {
 	 * Method to upload file to S3.
 	 * 
 	 * @param fileDto
+	 * @return String
 	 */
-	public void upload(FileDto fileDto);
+	public String upload(FileDto fileDto);
 	
 	/**
 	 * The method to create an empty folder.

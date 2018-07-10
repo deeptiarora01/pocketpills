@@ -24,7 +24,7 @@ public class UploadToS3Impl implements UploadToS3{
 	private static final String SUFFIX = "/";
 	
 	@Override
-	public void upload(FileDto fileDto){
+	public String upload(FileDto fileDto){
 		// credentials object identifying user for authentication
 		AWSCredentials credentials = new BasicAWSCredentials(
 				"AKIAIOYV6CGT7H3L46KA", 
@@ -39,14 +39,14 @@ public class UploadToS3Impl implements UploadToS3{
 		// create folder into bucket
 		String folderName = "testfolder";
 		
-		upload(fileDto,bucketName,folderName,s3client);
+		return upload(fileDto,bucketName,folderName,s3client);
 		
 	}
 	
 	
 	
-	public void upload(FileDto fileDto , String bucketName, String folderName, AmazonS3Client s3client){
-		
+	public String upload(FileDto fileDto , String bucketName, String folderName, AmazonS3Client s3client){
+				String url = null;
 				createFolder(bucketName, folderName, s3client);
 				
 				// upload file to folder and set it to public
@@ -67,12 +67,13 @@ public class UploadToS3Impl implements UploadToS3{
 							.withCannedAcl(CannedAccessControlList.PublicRead);
 					putObjectResult = s3client.putObject(putObjectRequest);
 					
-					String url = s3client.getResourceUrl(bucketName, fileName);
+					url = s3client.getResourceUrl(bucketName, fileName);
 					System.out.println(url);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+				return url;
 	}
 	
 	@Override

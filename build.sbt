@@ -18,3 +18,22 @@ libraryDependencies += "io.findify" %% "s3mock" % "0.2.4" % "test"
 
 testOptions += Tests.Argument(TestFrameworks.JUnit, "-a", "-v")
 
+excludeDependencies += "commons-logging" % "commons-logging"
+
+mainClass in assembly := Some("play.core.server.ProdServerStart")
+fullClasspath in assembly += Attributed.blank(PlayKeys.playPackageAssets.value)
+
+assemblyMergeStrategy in assembly := {
+  case manifest if manifest.contains("MANIFEST.MF") =>
+    // We don't need manifest files since sbt-assembly will create
+    // one with the given settings
+    MergeStrategy.discard
+  case referenceOverrides if referenceOverrides.contains("reference-overrides.conf") =>
+    // Keep the content for all reference-overrides.conf files
+    MergeStrategy.concat
+  case PathList("META-INF", "io.netty.versions.properties", xs @ _*) => MergeStrategy.last
+  case x =>
+    // For all the other files, use the default sbt-assembly merge strategy
+    val oldStrategy = (assemblyMergeStrategy in assembly).value
+    oldStrategy(x)
+}

@@ -20,7 +20,7 @@ import java.util.concurrent.CompletionStage;
 import static java.nio.file.Files.createTempFile;
 import static java.nio.file.Files.write;
 import static java.util.Collections.singletonList;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 import static play.test.Helpers.*;
@@ -47,7 +47,7 @@ public class HomeControllerTest {
 
                 Result result = route(app, request);
                 String actual = contentAsString(result);
-                assertEquals("Files Uploaded to S3", actual);
+                assertTrue(actual.toLowerCase().contains("Thanks for using our application to upload files to S3".toLowerCase()));
         });
     }
     
